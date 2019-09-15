@@ -1,0 +1,97 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import style
+from numpy.polynomial.polynomial import polyfit
+
+df = pd.read_csv("MBS_4_Years_Demographics 5.15.47 pm.csv")
+
+df.isnull().any()
+df['Year'].unique()
+df[df['Year'] == 2012].shape
+
+# Remove year 2012
+### ========================= Start remove Year 2012 data ================================= ###
+indexNames = df[df['Year'] == 2012].index # get index of Year 2012
+df.drop(indexNames, inplace = True) # drop 
+df['Year'].unique()
+df.shape
+### ========================= End remove Year 2012 data ================================= ###
+
+# reset_index
+df = df.reset_index(drop=True)
+
+# Done remove
+df['Year'].unique()
+
+year_list = []
+for i in range(df.shape[0]):
+    if df['Year'].iloc[i] == 2012:
+        year_list.append("2012")
+    elif df['Year'].iloc[i] == 2013:
+        year_list.append("2013")
+    elif df['Year'].iloc[i] == 2014:
+        year_list.append("2014")
+    elif df['Year'].iloc[i] == 2015:
+        year_list.append("2015")
+        
+        
+df = df.drop(['Year'], axis = 1)
+df.head()
+df['Year'] = year_list
+df = df[['Year', 'Month', 'Item_Number', 'State', 'Age_Range', 'Gender', 'Services', 'Benefits ($)']]
+
+### ========================= End changing the type of Year ================================= ###
+
+df['Year'].unique()
+df = df[df['Gender'] != 'U']
+df.shape
+
+### ========================= Start Calculate and Build new dataframe ================================= ###
+
+df.groupby(['Year', 'Gender']).sum()
+
+male_2012 = df['Benefits ($)'][(df['Year'] == '2012') & (df['Gender'] == 'Male')].sum()
+female_2012 = df['Benefits ($)'][(df['Year'] == '2012') & (df['Gender'] == 'Female')].sum()
+
+male_2013 = df['Benefits ($)'][(df['Year'] == '2013') & (df['Gender'] == 'Male')].sum()
+female_2013 = df['Benefits ($)'][(df['Year'] == '2013') & (df['Gender'] == 'Female')].sum()
+
+male_2014 = df['Benefits ($)'][(df['Year'] == '2014') & (df['Gender'] == 'Male')].sum()
+female_2014 = df['Benefits ($)'][(df['Year'] == '2014') & (df['Gender'] == 'Female')].sum()
+
+male_2015 = df['Benefits ($)'][(df['Year'] == '2015') & (df['Gender'] == 'Male')].sum()
+female_2015 = df['Benefits ($)'][(df['Year'] == '2015') & (df['Gender'] == 'Female')].sum()
+
+print(male_2012)
+print(female_2012)
+print(male_2013)
+print(female_2013)
+print(male_2014)
+print(female_2014)
+print(male_2015)
+print(female_2015)
+
+year = ('2012', '2012', '2013', '2013', '2014', '2014', '2015', '2015')
+gender = ('male', 'female', 'male', 'female','male', 'female','male', 'female')
+benefits = (male_2012, female_2012, male_2013, female_2013, male_2014,female_2014,male_2015, female_2015)
+
+print(year)
+print(" === ")
+print(gender)
+print(" === ")
+print(benefits)
+elements = [year, gender, benefits]
+elements
+ele = []
+for i in range(len(elements[0])):
+    a = (elements[0][i], elements[1][i], elements[2][i])
+    ele.append(a)
+print(ele)
+
+new_df = pd.DataFrame(ele, columns=['Year','Gender','Benefits'],index=[0,1,2,3,4,5,6,7])
+
+### ========================= End Calculate and Build new dataframe  ================================= ###
+
+# print out the final dataframe as excel file
+new_df.to_excel("NEW_MBS_4_Years_Demographics.xlsx", index= False)
